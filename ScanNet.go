@@ -10,6 +10,7 @@ import (
     "sync"
     "strings"
 )
+var  current_time = time.Now().Local()
 
 var Reset = "\033[0m" 
 var Red = "\033[31m" 
@@ -54,10 +55,12 @@ func ScanRangePort(Domain string,Start string , End string){
 	        mutex.Lock()
 			defer mutex.Unlock()
 	        if err != nil{
-	           fmt.Printf("\rConnection Fail in Port %d", Port)
-	           time.Sleep(10 * time.Millisecond)
+                fmt.Printf("🕵‍  Connection Fail          -----------| > %d%s", Port, Red+" Close"+Reset)
+	            time.Sleep(10 * time.Millisecond)
+                fmt.Print("\033[G\033[K") 
 	        }else{
-	        	fmt.Printf("\rConnection Succeeded Working On Port %d\n", Port)
+                fmt.Printf("🚀️ Connection Succeeded     -----------| > %d%s",Port, Red+" Open\n "+Reset)
+                fmt.Print("\033[G\033[K") 
 	        }
         }(Port)
     }
@@ -70,41 +73,50 @@ func Style (Styles Config) {
 ██      ██      ██   ██ ████   ██ ████   ██ ██         ██    
 ███████ ██      ███████ ██ ██  ██ ██ ██  ██ █████      ██    
      ██ ██      ██   ██ ██  ██ ██ ██  ██ ██ ██         ██    
-███████  ██████ ██   ██ ██   ████ ██   ████ ███████    ██    
+███████  ██████ ██   ██ ██   ████ ██   ████ ███████    ██.Go    
                         @jacstory`+"\n"
                         
     fmt.Println(Blue+Banner+Reset)  
     if Styles.Port !="" && Styles.Domain !="" &&Styles.EndScan== "" && Styles.StartScan==""{
-       fmt.Println("Staring Port     -----------| > ",Styles.Port)
-       fmt.Println("Staring Domain   -----------| > ",Styles.Domain)
+       fmt.Println("🚨 Staring Port     -----------| > ",Styles.Port)
+       fmt.Println("🌏 ScanDomain       -----------| > ",Styles.Domain)
+       fmt.Println("🕰️  Strating Time   -----------| > ",current_time.Format("15:04:05"))
        fmt.Println(strings.Repeat("_", 40))
     }else if Styles.StartScan !="" && Styles.EndScan !=""{
-       fmt.Println("Staring Port     -----------| > ",Styles.Port)
-       fmt.Println("Staring Domain   -----------| > ",Styles.Domain)
-       fmt.Println("Staring Port     -----------| > ",Styles.StartScan)
-       fmt.Println("Ending  Port     -----------| > ",Styles.EndScan)
+       fmt.Println("🌏 ScanDomain       -----------| > ",Styles.Domain)
+       fmt.Println("🚨 Staring Port     -----------| > ",Styles.StartScan)
+       fmt.Println("🎰️ Ending  Port     -----------| > ",Styles.EndScan)
+       fmt.Println("🕰️  Strating Time    -----------| > ",current_time.Format("15:04:05"))
        fmt.Println("")
        fmt.Println(Red+strings.Repeat("_", 40)+Reset)
+       fmt.Println("")
+
 }
     }                 
     
+func ResaltScan(){
+        
+       
+    }   
 func main(){
     var DataInfo Config
     flag.StringVar(&DataInfo.Port,"Port","80","default Port Scan")
-    flag.StringVar(&DataInfo.Domain,"Domain","","IP/Domain To Scan")
-    flag.StringVar(&DataInfo.StartScan,"StartScan","","Start Range Of Port Scan")
-    flag.StringVar(&DataInfo.EndScan,"EndScan","","End Of Port Sacn")
-    flag.Parse()
+	flag.StringVar(&DataInfo.Domain,"Domain","","IP/Domain To Scan")
+	flag.StringVar(&DataInfo.StartScan,"StartScan","","Start Range Of Port Scan")
+	flag.StringVar(&DataInfo.EndScan,"EndScan","","End Of Port Sacn")
+	flag.Parse()
     Style(DataInfo)
-    if DataInfo.Domain == ""{
-	fmt.Println("Domain name or IP Not Valid")
-	return
+    
+	if DataInfo.Domain == ""{
+		fmt.Println("Domain name or IP Not Valid")
+		return
 	}
-     if DataInfo.StartScan != "" && DataInfo.EndScan !=""{
-	ScanRangePort(DataInfo.Domain , DataInfo.StartScan , DataInfo.EndScan)
-     }else{
+	if DataInfo.StartScan != "" && DataInfo.EndScan !=""{
+	    ScanRangePort(DataInfo.Domain , DataInfo.StartScan , DataInfo.EndScan)
+    }else{
     	ScanSinglPort(DataInfo.Domain,DataInfo.Port)
     }
+
 }
 
 
