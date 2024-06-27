@@ -88,25 +88,21 @@ func Style (Styles Config) {
 }
     }                 
     
-    
 func main(){
-    
     var DataInfo Config
-
     flag.StringVar(&DataInfo.Port,"Port","80","default Port Scan")
-	flag.StringVar(&DataInfo.Domain,"Domain","","IP/Domain To Scan")
-	flag.StringVar(&DataInfo.StartScan,"StartScan","","Start Range Of Port Scan")
-	flag.StringVar(&DataInfo.EndScan,"EndScan","","End Of Port Sacn")
-	flag.Parse()
+    flag.StringVar(&DataInfo.Domain,"Domain","","IP/Domain To Scan")
+    flag.StringVar(&DataInfo.StartScan,"StartScan","","Start Range Of Port Scan")
+    flag.StringVar(&DataInfo.EndScan,"EndScan","","End Of Port Sacn")
+    flag.Parse()
     Style(DataInfo)
-    
-	if DataInfo.Domain == ""{
-		fmt.Println("Domain name or IP Not Valid")
-		return
+    if DataInfo.Domain == ""{
+	fmt.Println("Domain name or IP Not Valid")
+	return
 	}
-	if DataInfo.StartScan != "" && DataInfo.EndScan !=""{
-	    ScanRangePort(DataInfo.Domain , DataInfo.StartScan , DataInfo.EndScan)
-    }else{
+     if DataInfo.StartScan != "" && DataInfo.EndScan !=""{
+	ScanRangePort(DataInfo.Domain , DataInfo.StartScan , DataInfo.EndScan)
+     }else{
     	ScanSinglPort(DataInfo.Domain,DataInfo.Port)
     }
 }
