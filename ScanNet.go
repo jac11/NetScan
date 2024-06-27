@@ -12,7 +12,7 @@ import (
 )
 
 var Reset = "\033[0m" 
-//var Red = "\033[31m" 
+var Red = "\033[31m" 
 //var Green = "\033[32m" 
 //var Yellow = "\033[33m" 
 var Blue = "\033[34m" 
@@ -64,7 +64,7 @@ func ScanRangePort(Domain string,Start string , End string){
     WaitGroup.Wait() 
     fmt.Println()  
 }
-func Style (Port  string ,Domain string,Start string , End string) {
+func Style (Styles Config) {
     var Banner string = `
 ███████  ██████  █████  ███    ██ ███    ██ ███████ ████████ 
 ██      ██      ██   ██ ████   ██ ████   ██ ██         ██    
@@ -74,17 +74,17 @@ func Style (Port  string ,Domain string,Start string , End string) {
                         @jacstory`+"\n"
                         
     fmt.Println(Blue+Banner+Reset)  
-    if Port !="" && Domain !="" &&End == "" && Start==""{
-       fmt.Println("Staring Port     -----------| > ",Port)
-       fmt.Println("Staring Domain   -----------| > ",Domain)
+    if Styles.Port !="" && Styles.Domain !="" &&Styles.EndScan== "" && Styles.StartScan==""{
+       fmt.Println("Staring Port     -----------| > ",Styles.Port)
+       fmt.Println("Staring Domain   -----------| > ",Styles.Domain)
        fmt.Println(strings.Repeat("_", 40))
-    }else if Start !="" && End !=""{
-       fmt.Println("Staring Port     -----------| > ",Port)
-       fmt.Println("Staring Domain   -----------| > ",Domain)
-       fmt.Println("Staring Port     -----------| > ", Start)
-       fmt.Println("Ending  Port     -----------| > ", End)
+    }else if Styles.StartScan !="" && Styles.EndScan !=""{
+       fmt.Println("Staring Port     -----------| > ",Styles.Port)
+       fmt.Println("Staring Domain   -----------| > ",Styles.Domain)
+       fmt.Println("Staring Port     -----------| > ",Styles.StartScan)
+       fmt.Println("Ending  Port     -----------| > ",Styles.EndScan)
        fmt.Println("")
-       fmt.Println(strings.Repeat("_", 40))
+       fmt.Println(Red+strings.Repeat("_", 40)+Reset)
 }
     }                 
     
@@ -98,7 +98,7 @@ func main(){
 	flag.StringVar(&DataInfo.StartScan,"StartScan","","Start Range Of Port Scan")
 	flag.StringVar(&DataInfo.EndScan,"EndScan","","End Of Port Sacn")
 	flag.Parse()
-    Style(DataInfo.Port ,DataInfo.Domain, DataInfo.StartScan,DataInfo.EndScan )
+    Style(DataInfo)
     
 	if DataInfo.Domain == ""{
 		fmt.Println("Domain name or IP Not Valid")
