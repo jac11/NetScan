@@ -88,8 +88,8 @@ func Style (Styles Config) {
        fmt.Println("")
        fmt.Println(Red+strings.Repeat("_", 40)+Reset)
        fmt.Println("")
-}
-    }                    
+    }
+}                    
 func ResaltScan(Conut Config){
     fmt.Println(Red+strings.Repeat("_", 40)+Reset)
     fmt.Println("")
@@ -100,7 +100,7 @@ func ResaltScan(Conut Config){
     fmt.Println("🧭 EndTime           -----------| > ",TimeEnd.Format("15:04:05"))
     fmt.Println("⏳ Scan Time         -----------| > ", AllTime )
     fmt.Println("🎯 Port Conut        -----------| > ", CountPort1 - CountPort2+1 )
-    }   
+}   
 func main(){
     var DataInfo Config
     flag.StringVar(&DataInfo.Port,"Port","80","default Port Scan")
