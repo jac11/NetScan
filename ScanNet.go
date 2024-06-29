@@ -10,6 +10,7 @@ import (
     "sync"
     "strings"
 )
+var IntNum = 0
 var  current_time = time.Now().Local()
 var OPenPort int
 var Reset = "\033[0m" 
@@ -51,11 +52,12 @@ func ScanRangePort(Domain string,Start string , End string){
             _, err := net.DialTimeout("tcp",DomainNet,3*time.Second)
             mutex.Lock()
             defer mutex.Unlock()
-            if err != nil{
+            if err != nil {
                 fmt.Printf("🕵‍  Connection Fail          -----------| > %d%s", Port, Red+" Close"+Reset)
                 time.Sleep(10 * time.Millisecond)
                 fmt.Print("\033[G\033[K") 
             }else{
+                IntNum ++
                 fmt.Printf("🚀️ Connection Succeeded     -----------| > %d%s",Port, Red+" Open\n "+Reset)
                 fmt.Print("\033[G\033[K")
             }
@@ -100,6 +102,8 @@ func ResaltScan(Conut Config){
     fmt.Println("🧭 EndTime           -----------| > ",TimeEnd.Format("15:04:05"))
     fmt.Println("⏳ Scan Time         -----------| > ", AllTime )
     fmt.Println("🎯 Port Conut        -----------| > ", CountPort1 - CountPort2+1 )
+    fmt.Println("🪲️ Ports Live        -----------| > ", IntNum)
+    fmt.Println("🐞 Close Ports       -----------| > ", CountPort1 - IntNum )
 }   
 func main(){
     var DataInfo Config
