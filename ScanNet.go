@@ -19,6 +19,7 @@ var OPenPort int
 var Reset = "\033[0m" 
 var Red = "\033[31m" 
 var Blue = "\033[34m" 
+var Cyan = "\033[36m" 
 
 type Config struct{
 
@@ -29,6 +30,7 @@ type Config struct{
     WriteFile  string
 }
 func ScanSinglPort(Domain string, Port string){
+   
     DomainNet := net.JoinHostPort(Domain,Port)
     Connect, err := net.DialTimeout("tcp",DomainNet,3*time.Second)
     if err != nil{
@@ -36,9 +38,15 @@ func ScanSinglPort(Domain string, Port string){
        OutFile += fmt.Sprintf("🕵‍ Connection Fail     -----------| > %s",Port)+" Close\n"
        return
    }
-   fmt.Println("🚀️ Connection Succeeded     -----------| > ",Port, Red+" Open\n "+Reset)
-   OutFile += fmt.Sprintf("🚀️ Connection Succeeded     -----------| > %s",Port)+" Open\n"
-   Connect.Close()
+    for PortService , Service  := range (myMap){
+        if Port == PortService {
+            fmt.Println("🚀️ Connection Succeeded     -----------| > ",Port, Red+" Open "+Reset+ Cyan +  Service + Reset)
+            OutFile += fmt.Sprintf("🚀️ Connection Succeeded     -----------| > %s",Port)+" Open "+Service+"\n"
+            Connect.Close()
+            
+        }
+    } 
+   
 }
 func ScanRangePort(Domain string,Start string , End string){
     var WaitGroup sync.WaitGroup
@@ -59,9 +67,13 @@ func ScanRangePort(Domain string,Start string , End string){
                 fmt.Print("\033[G\033[K") 
             }else{
                 IntNum ++
-                fmt.Printf("🚀️ Connection Succeeded     -----------| > %d%s",Port, Red+" Open\n "+Reset)
-                OutFile += fmt.Sprintf("🚀️ Connection Succeeded     -----------| > %d",Port)+" Open\n"
-                fmt.Print("\033[G\033[K")
+                for PortService , Service  := range (myMap){
+                   if strconv.Itoa(Port) == PortService {
+                       fmt.Println("🚀️ Connection Succeeded     -----------| > ",Port, Red+" Open "+Reset+ Cyan +  Service + Reset)
+                       OutFile += fmt.Sprintf("🚀️ Connection Succeeded     -----------| > %s",Port)+" Open "+Service+"\n"
+                       fmt.Print("\033[G\033[K")
+                    }
+                }
             }
         }(Port)
     }
@@ -87,8 +99,8 @@ func Style (Styles Config) {
         fmt.Println("")
         if Styles.WriteFile !=""{
             OutFile += Banner+"\n"
-            OutFile += fmt.Sprintf("🌏 ScanDomain       -----------| > "+Styles.Domain)+"\n"
-            OutFile += fmt.Sprintf("🚨 Staring Port     -----------| > %s",Styles.StartScan)+"\n"
+            OutFile += fmt.Sprintf("ScanDomain       -----------| > "+Styles.Domain)+"\n"
+            OutFile += fmt.Sprintf("Staring Port     -----------| > %s",Styles.StartScan)+"\n"
             OutFile += fmt.Sprintf("🕰  Strating Time    -----------| > %s",current_time.Format("15:04:05"))+"\n"
             OutFile += fmt.Sprintf("%s","")+"\n"
             OutFile += fmt.Sprintf("%s",strings.Repeat("_", 40))+"\n"
@@ -106,10 +118,10 @@ func Style (Styles Config) {
    
         if Styles.WriteFile !=""{
             OutFile += Banner+"\n"
-            OutFile += fmt.Sprintf("🌏 ScanDomain       -----------| > %s",Styles.Domain)+"\n"
-            OutFile += fmt.Sprintf("🚨 Staring Port     -----------| > %s",Styles.StartScan)+"\n"
-            OutFile += fmt.Sprintf("🎰️ Ending  Port     -----------| > %s",Styles.EndScan)+"\n"
-            OutFile += fmt.Sprintf("🕰  Strating Time    -----------| > %s",current_time.Format("15:04:05"))+"\n"
+            OutFile += fmt.Sprintf("ScanDomain       -----------| > %s",Styles.Domain)+"\n"
+            OutFile += fmt.Sprintf("Staring Port     -----------| > %s",Styles.StartScan)+"\n"
+            OutFile += fmt.Sprintf("Ending  Port     -----------| > %s",Styles.EndScan)+"\n"
+            OutFile += fmt.Sprintf("Strating Time    -----------| > %s",current_time.Format("15:04:05"))+"\n"
             OutFile += fmt.Sprintf("%s","")+"\n"
             OutFile += fmt.Sprintf("%s",strings.Repeat("_", 40))+"\n"
             OutFile += fmt.Sprintf("%s","")+"\n"
@@ -131,11 +143,11 @@ func ResaltScan(Conut Config){
     fmt.Println("🐞 Close Ports       -----------| > ", CountPort1 - IntNum )
     if Conut.WriteFile !=""{
         OutFile += fmt.Sprintf("%s",strings.Repeat("_", 40))+"\n\n"
-        OutFile += fmt.Sprintf("🧭 EndTime           -----------| > %s",TimeEnd.Format("15:04:05"))+"\n"
-        OutFile += fmt.Sprintf("⏳ Scan Time         -----------| > %s", AllTime )+"\n"
-        OutFile += fmt.Sprintf("🎯 Port Conut        -----------| > %d", CountPort1 - CountPort2+1 )+"\n"
-        OutFile += fmt.Sprintf("🪲️ Ports Live        -----------| > %d", IntNum)+"\n"
-        OutFile += fmt.Sprintf("🐞 Close Ports       -----------| > %d", CountPort1 - IntNum )+"\n"
+        OutFile += fmt.Sprintf("EndTime           -----------| > %s",TimeEnd.Format("15:04:05"))+"\n"
+        OutFile += fmt.Sprintf("Scan Time         -----------| > %s", AllTime )+"\n"
+        OutFile += fmt.Sprintf("Port Conut        -----------| > %d", CountPort1 - CountPort2+1 )+"\n"
+        OutFile += fmt.Sprintf("Ports Live        -----------| > %d", IntNum)+"\n"
+        OutFile += fmt.Sprintf("Close Ports       -----------| > %d", CountPort1 - IntNum )+"\n"
     }
     writeFile(OutFile,Conut)
 }  
@@ -145,6 +157,9 @@ func writeFile(OutPut string , DataInfo Config){
     var err error
 
     file, err = os.OpenFile(DataInfo.WriteFile, os.O_CREATE|os.O_WRONLY, 0644)
+    if err != nil{
+        return
+    }
     if err != nil {
         fmt.Println("Error opening file:", err)
             return
@@ -157,6 +172,7 @@ func writeFile(OutPut string , DataInfo Config){
 
 func main(){
     var DataInfo Config
+
     flag.StringVar(&DataInfo.Port,"Port","80","default Port Scan")
     flag.StringVar(&DataInfo.Domain,"Domain","","IP/Domain To Scan")
     flag.StringVar(&DataInfo.StartScan,"StartScan","","Start Range Of Port Scan")
