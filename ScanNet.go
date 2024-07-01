@@ -10,6 +10,8 @@ import (
     "sync"
     "strings"
     "os"
+    "os/exec"
+    "regexp"
 )
 var file *os.File
 var OutFile =""
@@ -28,58 +30,6 @@ type Config struct{
     StartScan  string 
     EndScan    string
     WriteFile  string
-}
-func ScanSinglPort(Domain string, Port string){
-   
-    DomainNet := net.JoinHostPort(Domain,Port)
-    Connect, err := net.DialTimeout("tcp",DomainNet,3*time.Second)
-    if err != nil{
-       fmt.Println("🕵‍  Connection Fail          -----------| > ", Port, Red+" Close"+Reset)
-       OutFile += fmt.Sprintf("🕵‍ Connection Fail     -----------| > %s",Port)+" Close\n"
-       return
-   }
-    for PortService , Service  := range (myMap){
-        if Port == PortService {
-            fmt.Println("🚀️ Connection Succeeded     -----------| > ",Port, Red+" Open "+Reset+ Cyan +  Service + Reset)
-            OutFile += fmt.Sprintf("🚀️ Connection Succeeded     -----------| > %s",Port)+" Open "+Service+"\n"
-            Connect.Close()
-            
-        }
-    } 
-   
-}
-func ScanRangePort(Domain string,Start string , End string){
-    var WaitGroup sync.WaitGroup
-    var mutex sync.Mutex
-    StartInt,_ := strconv.Atoi(Start)
-    EndInt,_ := strconv.Atoi(End)
-    for Port := StartInt ; Port <= EndInt ;Port++{
-        WaitGroup.Add(1)
-        go func (Port int){
-            defer  WaitGroup.Done()
-            DomainNet := net.JoinHostPort(Domain,strconv.Itoa(Port))
-            _, err := net.DialTimeout("tcp",DomainNet,3*time.Second)
-            mutex.Lock()
-            defer mutex.Unlock()
-            if err != nil {
-                fmt.Printf("🕵‍  Connection Fail          -----------| > %d%s", Port, Red+" Close"+Reset)
-                time.Sleep(10 * time.Millisecond)
-                fmt.Print("\033[G\033[K") 
-            }else{
-                IntNum ++
-                for PortService , Service  := range (myMap){
-                   if strconv.Itoa(Port) == PortService {
-                       fmt.Println("🚀️ Connection Succeeded     -----------| > ",Port, Red+" Open "+Reset+ Cyan +  Service + Reset)
-                       OutFile += fmt.Sprintf("🚀️ Connection Succeeded     -----------| > %s",Port)+" Open "+Service+"\n"
-                       fmt.Print("\033[G\033[K")
-                    }
-                }
-            }
-        }(Port)
-    }
-    
-    WaitGroup.Wait() 
-    fmt.Println()
 }
 func Style (Styles Config) {
     var Banner string = `
@@ -128,14 +78,93 @@ func Style (Styles Config) {
            
         }
     }     
-}                    
+}                       
+func PingHost(Domain string)(string,string){
+    cmd := exec.Command("ping", "-c", "1",Domain)
+    output, err := cmd.Output()
+    if err != nil {
+        fmt.Println("⛔️ Status     -----------| > Executing Internet Error")
+        os.Exit(0)
+    }
+    re := regexp.MustCompile(`ttl=(\d+)`)
+    matches := re.FindStringSubmatch(string(output))
+    IPGet := regexp.MustCompile(`(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})`)
+    matches2 := IPGet.FindStringSubmatch(string(output))[1]
+    return matches[1],matches2
+}
+func ScanSinglPort(Domain string, Port string){
+   
+    DomainNet := net.JoinHostPort(Domain,Port)
+    Connect, err := net.DialTimeout("tcp",DomainNet,3*time.Second)
+    if err != nil{
+       fmt.Println("🕵‍  Connection Fail          -----------| > ", Port, Red+" Close"+Reset)
+       OutFile += fmt.Sprintf("🕵‍ Connection Fail     -----------| > %s",Port)+" Close\n"
+       return
+   }
+    for PortService , Service  := range (myMap){
+        if Port == PortService {
+            fmt.Println("🚀️ Connection Succeeded     -----------| > ",Port, Red+" Open "+Reset+ Cyan +  Service + Reset)
+            OutFile += fmt.Sprintf("Connection Succeeded     -----------| > %s",Port)+" Open "+Service+"\n"
+            Connect.Close()
+            
+        }
+    } 
+   
+}
+func ScanRangePort(Domain string,Start string , End string){
+    var WaitGroup sync.WaitGroup
+    var mutex sync.Mutex
+    StartInt,_ := strconv.Atoi(Start)
+    EndInt,_ := strconv.Atoi(End)
+    for Port := StartInt ; Port <= EndInt ;Port++{
+        WaitGroup.Add(1)
+        go func (Port int){
+            defer  WaitGroup.Done()
+            DomainNet := net.JoinHostPort(Domain,strconv.Itoa(Port))
+            _, err := net.DialTimeout("tcp",DomainNet,3*time.Second)
+            mutex.Lock()
+            defer mutex.Unlock()
+            if err != nil {
+                fmt.Printf("🕵‍  Connection Fail          -----------| > %d%s", Port, Red+" Close"+Reset)
+                time.Sleep(10 * time.Millisecond)
+                fmt.Print("\033[G\033[K") 
+            }else{
+                IntNum ++
+                for PortService , Service  := range (myMap){
+                   if strconv.Itoa(Port) == PortService {
+                       fmt.Println("🚀️ Connection Succeeded     -----------| > ",Port, Red+" Open "+Reset+ Cyan +  Service + Reset)
+                       OutFile += fmt.Sprintf("Connection Succeeded     -----------| > %d",Port)+" Open "+Service+"\n"
+                       fmt.Print("\033[G\033[K")
+                    }
+                }
+            }
+        }(Port)
+    }
+    
+    WaitGroup.Wait() 
+    fmt.Println()
+}
+
 func ResaltScan(Conut Config){
+    var Value = ""
+    TTL,IP := PingHost(Conut.Domain)
+    for TTLValue,TTLMessage := range(TTLOS){ 
+        if TTL == strconv.Itoa(TTLValue){
+            Value = TTLMessage
+            break
+        }else{
+         TTLMessage = "UnKwon OS-Guess Linux"
+         Value = TTLMessage
+       }
+    }
     fmt.Println(Red+strings.Repeat("_", 40)+Reset)
     fmt.Println("")
     TimeEnd :=  time.Now().Local()
     AllTime := TimeEnd.Sub(current_time)
     CountPort1 ,_ := strconv.Atoi(Conut.EndScan)
     CountPort2 ,_ := strconv.Atoi(Conut.StartScan)
+    fmt.Println("🖥  Domain IP         -----------| > ",IP)
+    fmt.Println("💡 Guess OS          -----------| > ", Value )
     fmt.Println("🧭 EndTime           -----------| > ",TimeEnd.Format("15:04:05"))
     fmt.Println("⏳ Scan Time         -----------| > ", AllTime )
     fmt.Println("🎯 Port Conut        -----------| > ", CountPort1 - CountPort2+1 )
@@ -143,6 +172,8 @@ func ResaltScan(Conut Config){
     fmt.Println("🐞 Close Ports       -----------| > ", CountPort1 - IntNum )
     if Conut.WriteFile !=""{
         OutFile += fmt.Sprintf("%s",strings.Repeat("_", 40))+"\n\n"
+        OutFile += fmt.Sprintf("Domain IP         -----------| > %s ",IP)+"\n"
+        OutFile += fmt.Sprintf("Guess OS          -----------| > %s", Value )+"\n"
         OutFile += fmt.Sprintf("EndTime           -----------| > %s",TimeEnd.Format("15:04:05"))+"\n"
         OutFile += fmt.Sprintf("Scan Time         -----------| > %s", AllTime )+"\n"
         OutFile += fmt.Sprintf("Port Conut        -----------| > %d", CountPort1 - CountPort2+1 )+"\n"
@@ -172,7 +203,6 @@ func writeFile(OutPut string , DataInfo Config){
 
 func main(){
     var DataInfo Config
-
     flag.StringVar(&DataInfo.Port,"Port","80","default Port Scan")
     flag.StringVar(&DataInfo.Domain,"Domain","","IP/Domain To Scan")
     flag.StringVar(&DataInfo.StartScan,"StartScan","","Start Range Of Port Scan")

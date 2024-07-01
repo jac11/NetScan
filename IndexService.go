@@ -3267,3 +3267,12 @@ var myMap = map[string]string{
 		"65301":"pcAnywhere-def",
 		"65506":"PhatBot  Agobot  Gaobot (Windows trojan",
 }
+var TTLOS = map[int]string{
+		32:  "Windows 95/98/ME/NT",
+		60:  "AIX/HP-UX/MacOS/Irix/OSF/1/SunOS",
+		64:  "Linux/FreeBSD/Compaq Tru64/Foundry/Juniper/Netgear/android",
+		128: "Windows NT/2000/XP/Vista/7/10",
+		200: "MPE/IX (HP)",
+		254: "Cisco",
+		255: "AIX/BSDI/HP-UX/Irix/Linux/NetBSD/OpenBSD/OpenVMS/Solaris/Stratus",
+	}
