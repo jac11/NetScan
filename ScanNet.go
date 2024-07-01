@@ -14,15 +14,16 @@ import (
     "regexp"
 )
 var file *os.File
-var OutFile =""
-var IntNum = 0
-var current_time = time.Now().Local()
 var OPenPort int
-var Reset = "\033[0m" 
-var Red = "\033[31m" 
-var Blue = "\033[34m" 
-var Cyan = "\033[36m" 
-
+var Reset   = "\033[0m" 
+var Red     = "\033[31m" 
+var Blue    = "\033[34m" 
+var Cyan    = "\033[36m" 
+var White   = "\033[97m"
+var Yellow  = "\033[33m" 
+var OutFile =""
+var IntNum  = 0
+var current_time = time.Now().Local()
 type Config struct{
 
     Port       string
@@ -43,15 +44,15 @@ func Style (Styles Config) {
     fmt.Println(Blue+Banner+Reset)  
     if Styles.Port !="" && Styles.Domain !="" &&Styles.EndScan== "" && Styles.StartScan==""{
         fmt.Println("🌏 ScanDomain       -----------| > ",Styles.Domain)
-        fmt.Println("🚨 Staring Port     -----------| > ",Styles.StartScan)
+        fmt.Println("🚨 Scan Port        -----------| > ",Styles.Port)
         fmt.Println("🕰  Strating Time    -----------| > ",current_time.Format("15:04:05"))
         fmt.Println(Red+strings.Repeat("_", 40)+Reset)
         fmt.Println("")
         if Styles.WriteFile !=""{
             OutFile += Banner+"\n"
             OutFile += fmt.Sprintf("ScanDomain       -----------| > "+Styles.Domain)+"\n"
-            OutFile += fmt.Sprintf("Staring Port     -----------| > %s",Styles.StartScan)+"\n"
-            OutFile += fmt.Sprintf("🕰  Strating Time    -----------| > %s",current_time.Format("15:04:05"))+"\n"
+            OutFile += fmt.Sprintf("Scan Port        -----------| > %s",Styles.Port)+"\n"
+            OutFile += fmt.Sprintf("Strating Time    -----------| > %s",current_time.Format("15:04:05"))+"\n"
             OutFile += fmt.Sprintf("%s","")+"\n"
             OutFile += fmt.Sprintf("%s",strings.Repeat("_", 40))+"\n"
             OutFile += fmt.Sprintf("%s","")+"\n"
@@ -83,7 +84,8 @@ func PingHost(Domain string)(string,string){
     cmd := exec.Command("ping", "-c", "1",Domain)
     output, err := cmd.Output()
     if err != nil {
-        fmt.Println("⛔️ Status     -----------| > Executing Internet Error")
+        fmt.Println("⛔️ Status-1\t\t    -----------| > Executing Internet Error")
+        fmt.Println("⛔️ Status-2\t\t    -----------| > Use Domain Without http/https ")
         os.Exit(0)
     }
     re := regexp.MustCompile(`ttl=(\d+)`)
@@ -98,7 +100,7 @@ func ScanSinglPort(Domain string, Port string){
     Connect, err := net.DialTimeout("tcp",DomainNet,3*time.Second)
     if err != nil{
        fmt.Println("🕵‍  Connection Fail          -----------| > ", Port, Red+" Close"+Reset)
-       OutFile += fmt.Sprintf("🕵‍ Connection Fail     -----------| > %s",Port)+" Close\n"
+       OutFile += fmt.Sprintf("Connection Fail     -----------| > %s",Port)+" Close\n"
        return
    }
     for PortService , Service  := range (myMap){
@@ -125,15 +127,15 @@ func ScanRangePort(Domain string,Start string , End string){
             mutex.Lock()
             defer mutex.Unlock()
             if err != nil {
-                fmt.Printf("🕵‍  Connection Fail          -----------| > %d%s", Port, Red+" Close"+Reset)
+                fmt.Printf("🕵‍  Connection Fail          -----------| > %-5d%s", Port, Red+" Close"+Reset)
                 time.Sleep(10 * time.Millisecond)
                 fmt.Print("\033[G\033[K") 
             }else{
                 IntNum ++
                 for PortService , Service  := range (myMap){
                    if strconv.Itoa(Port) == PortService {
-                       fmt.Println("🚀️ Connection Succeeded     -----------| > ",Port, Red+" Open "+Reset+ Cyan +  Service + Reset)
-                       OutFile += fmt.Sprintf("Connection Succeeded     -----------| > %d",Port)+" Open "+Service+"\n"
+                       fmt.Printf("🚀️ Connection Succeeded     -----------| > %-4d %s Open %s %s%s %s\n", Port, Red, Reset, Cyan, Service, Reset)
+                       OutFile += fmt.Sprintf("Connection Succeeded     -----------| > %-4d",Port)+" Open "+Service+"\n"
                        fmt.Print("\033[G\033[K")
                     }
                 }
@@ -163,8 +165,8 @@ func ResaltScan(Conut Config){
     AllTime := TimeEnd.Sub(current_time)
     CountPort1 ,_ := strconv.Atoi(Conut.EndScan)
     CountPort2 ,_ := strconv.Atoi(Conut.StartScan)
-    fmt.Println("🖥  Domain IP         -----------| > ",IP)
-    fmt.Println("💡 Guess OS          -----------| > ", Value )
+    fmt.Println("🖥  Domain IP         -----------| > ",White+IP+Reset)
+    fmt.Println("💡 Guess OS          -----------| > ",Yellow+ Value +Reset)
     fmt.Println("🧭 EndTime           -----------| > ",TimeEnd.Format("15:04:05"))
     fmt.Println("⏳ Scan Time         -----------| > ", AllTime )
     fmt.Println("🎯 Port Conut        -----------| > ", CountPort1 - CountPort2+1 )
@@ -186,7 +188,9 @@ func ResaltScan(Conut Config){
 func writeFile(OutPut string , DataInfo Config){
     var file *os.File
     var err error
-
+    if _, err := os.Stat(DataInfo.WriteFile); err == nil {
+        os.Remove(DataInfo.WriteFile)
+   } 
     file, err = os.OpenFile(DataInfo.WriteFile, os.O_CREATE|os.O_WRONLY, 0644)
     if err != nil{
         return
