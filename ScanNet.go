@@ -95,7 +95,7 @@ func PingHost(Domain string)(string,string){
     return matches[1],matches2
 }
 func ScanSinglPort(Domain string, Port string){
-    
+    IntNum=0
     DomainNet := net.JoinHostPort(Domain,Port)
     Connect, err := net.DialTimeout("tcp",DomainNet,3*time.Second)
     if err != nil{
@@ -173,7 +173,7 @@ func ResaltScan(Conut Config){
     fmt.Println("🎯 Port Conut        -----------| > ", CountPort1 - CountPort2+1 )
     fmt.Println("🪲️ Ports Live        -----------| > ", IntNum)
     if IntNum ==1 {
-        fmt.Println("🐞 Close Ports       -----------| > ", IntNum )
+        fmt.Println("🐞 Close Ports       -----------| > ", IntNum-1 )
     }else if IntNum == 0 {
         fmt.Println("🐞 Close Ports       -----------| > ", IntNum+1)
     }else{
@@ -188,7 +188,14 @@ func ResaltScan(Conut Config){
         OutFile += fmt.Sprintf("Scan Time         -----------| > %s", AllTime )+"\n"
         OutFile += fmt.Sprintf("Port Conut        -----------| > %d", CountPort1 - CountPort2+1 )+"\n"
         OutFile += fmt.Sprintf("Ports Live        -----------| > %d", IntNum)+"\n"
-        OutFile += fmt.Sprintf("Close Ports       -----------| > %d", CountPort1 - IntNum )+"\n"
+        if IntNum ==1{
+            OutFile += fmt.Sprintf("Close Ports       -----------| > %d", IntNum-1 )+"\n"
+        }else if IntNum == 0{
+            OutFile += fmt.Sprintf("Close Ports       -----------| > %d", IntNum+1 )+"\n"
+        }else{
+           OutFile += fmt.Sprintf("Close Ports       -----------| > %d", CountPort1 - IntNum )+"\n" 
+        }
+        
     }
     writeFile(OutFile,Conut)
 }  
