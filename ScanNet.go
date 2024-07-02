@@ -24,6 +24,14 @@ var Yellow  = "\033[33m"
 var OutFile =""
 var IntNum  = 0
 var current_time = time.Now().Local()
+
+var Banner string = `
+███████  ██████  █████  ███    ██ ███    ██ ███████ ████████ 
+██      ██      ██   ██ ████   ██ ████   ██ ██         ██    
+███████ ██      ███████ ██ ██  ██ ██ ██  ██ █████      ██    
+     ██ ██      ██   ██ ██  ██ ██ ██  ██ ██ ██         ██    
+███████  ██████ ██   ██ ██   ████ ██   ████ ███████    ██.Go    
+                        @jacstory`+"\n"
 type Config struct{
 
     Port       string
@@ -33,14 +41,7 @@ type Config struct{
     WriteFile  string
 }
 func Style (Styles Config) {
-    var Banner string = `
-███████  ██████  █████  ███    ██ ███    ██ ███████ ████████ 
-██      ██      ██   ██ ████   ██ ████   ██ ██         ██    
-███████ ██      ███████ ██ ██  ██ ██ ██  ██ █████      ██    
-     ██ ██      ██   ██ ██  ██ ██ ██  ██ ██ ██         ██    
-███████  ██████ ██   ██ ██   ████ ██   ████ ███████    ██.Go    
-                        @jacstory`+"\n"
-                        
+    
     fmt.Println(Blue+Banner+Reset)  
     if Styles.Port !="" && Styles.Domain !="" &&Styles.EndScan== "" && Styles.StartScan==""{
         fmt.Println("🌏 ScanDomain       -----------| > ",Styles.Domain)
@@ -79,20 +80,48 @@ func Style (Styles Config) {
            
         }
     }     
-}                       
-func PingHost(Domain string)(string,string){
-    cmd := exec.Command("ping", "-c", "1",Domain)
-    output, err := cmd.Output()
-    if err != nil {
-        fmt.Println("⛔️ Status-1\t\t    -----------| > Executing Internet Error")
-        fmt.Println("⛔️ Status-2\t\t    -----------| > Use Domain Without http/https ")
+}
+func CheckNet(Domain string){
+    if  strings.HasPrefix(Domain, "http://") || strings.HasPrefix(Domain, "https://"){
+        fmt.Println(Blue+Banner+Reset)
+        fmt.Println("⛔ Error-Status-2\t\t    -----------| > "+Cyan+"Use Domain Without "+Red+"{ "+Cyan+"http://-or-https://"+Red+" }"+Reset)
         os.Exit(0)
     }
-    re := regexp.MustCompile(`ttl=(\d+)`)
-    matches := re.FindStringSubmatch(string(output))
-    IPGet := regexp.MustCompile(`(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})`)
-    matches2 := IPGet.FindStringSubmatch(string(output))[1]
-    return matches[1],matches2
+    cmd := exec.Command("ping", "-c", "1",Domain)
+    _, err := cmd.Output()
+    if  err != nil {
+        Command := exec.Command("dig" ,Domain ,"+short")
+        _ ,err := Command.Output()
+        if err != nil{
+            fmt.Println(Blue+Banner+Reset) 
+            fmt.Println("⛔️Error-Status-9\t\t    -----------| > "+Cyan +"Executing Internet Error"+Reset)
+            os.Exit(0)
+        } 
+    } 
+}                            
+func PingHost(Domain string)(string,string){
+    var matches,matches2 string 
+    cmd := exec.Command("ping", "-c", "1",Domain)
+    output, err := cmd.Output()
+    if  err != nil {
+        Command := exec.Command("dig" ,Domain ,"+short")
+        OutPut ,err := Command.Output()
+        if err != nil{
+            fmt.Println("⛔️ Status-1\t\t    -----------| > Executing Internet Error")
+            fmt.Println("⛔️ Status-2\t\t    -----------| > Use Domain Without http/https ")
+            os.Exit(0)
+        }else{
+            matches  ,  matches2 :=  "OS UnKwon ", strings.Replace(string(OutPut),"\n","",1)
+            return matches,matches2
+        }     
+    }else{
+        re := regexp.MustCompile(`ttl=(\d+)`)
+        matches := re.FindStringSubmatch(string(output))[1]
+        IPGet := regexp.MustCompile(`(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})`)
+        matches2 := IPGet.FindStringSubmatch(string(output))[1]
+        return matches,matches2
+    }        
+    return matches,matches2
 }
 func ScanSinglPort(Domain string, Port string){
     IntNum=0
@@ -179,10 +208,9 @@ func ResaltScan(Conut Config){
     }else{
         fmt.Println("🐞 Close Ports       -----------| > ", CountPort1 - IntNum )
     }
-    
     if Conut.WriteFile !=""{
         OutFile += fmt.Sprintf("%s",strings.Repeat("_", 40))+"\n\n"
-        OutFile += fmt.Sprintf("Domain IP         -----------| > %s ",IP)+"\n"
+        OutFile += fmt.Sprintf("Domain IP         -----------| > %v ",IP)+"\n"
         OutFile += fmt.Sprintf("Guess OS          -----------| > %s", Value )+"\n"
         OutFile += fmt.Sprintf("EndTime           -----------| > %s",TimeEnd.Format("15:04:05"))+"\n"
         OutFile += fmt.Sprintf("Scan Time         -----------| > %s", AllTime )+"\n"
@@ -221,6 +249,7 @@ func writeFile(OutPut string , DataInfo Config){
 } 
 
 func main(){
+    
     var DataInfo Config
     flag.StringVar(&DataInfo.Port,"Port","80","default Port Scan")
     flag.StringVar(&DataInfo.Domain,"Domain","","IP/Domain To Scan")
@@ -228,6 +257,7 @@ func main(){
     flag.StringVar(&DataInfo.EndScan,"EndScan","","End Of Port Sacn")
     flag.StringVar(&DataInfo.WriteFile , "WriteFile" ,"","Write STdout To File")
     flag.Parse()
+    CheckNet(DataInfo.Domain)
     if DataInfo.WriteFile !=""{
         writeFile(OutFile,DataInfo)
     }

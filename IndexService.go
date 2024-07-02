@@ -1,5 +1,6 @@
 package main
 
+
 var myMap = map[string]string{
 		"0":"Reserved",
 		"1":"Port Service Multiplexer",
