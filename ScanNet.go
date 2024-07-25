@@ -39,6 +39,7 @@ type Config struct{
     StartScan  string 
     EndScan    string
     WriteFile  string
+
 }
 func Style (Styles Config) {
     
@@ -124,24 +125,33 @@ func PingHost(Domain string)(string,string){
     return matches,matches2
 }
 func ScanSinglPort(Domain string, Port string){
-    IntNum=0
+    IntNum = 0
     DomainNet := net.JoinHostPort(Domain,Port)
     Connect, err := net.DialTimeout("tcp",DomainNet,3*time.Second)
     if err != nil{
        fmt.Println("🕵‍  Connection Fail          -----------| > ", Port, Red+" Close"+Reset)
        OutFile += fmt.Sprintf("Connection Fail     -----------| > %s",Port)+" Close\n"
        return
-   }
-    for PortService , Service  := range (myMap){
-
-        if Port == PortService {
-            fmt.Println("🚀️ Connection Succeeded     -----------| > ",Port, Red+" Open "+Reset+ Cyan +  Service + Reset)
-            OutFile += fmt.Sprintf("Connection Succeeded     -----------| > %s",Port)+" Open "+Service+"\n"
-            Connect.Close()
-            IntNum = 1
+    }
+    buffer := make([]byte, 512)
+    Connect.SetReadDeadline(time.Now().Add(1* time.Second)) 
+    ServicePort, _ := Connect.Read(buffer)
+    if ServicePort== 0 {
+        for PortService , Service  := range (myMap){
+            if Port == PortService {
+                fmt.Printf("🚀️ Connection Succeeded     -----------| > %s %s Open %s%s%s\n", Port, Red, Reset, Cyan, Service)
+                OutFile += fmt.Sprintf("Connection Succeeded     -----------| > %s",Port)+" Open "+Service+"\n"
+                Connect.Close()
+                IntNum = 1
+            }
         }
-    } 
-   
+    }else{
+        ServiceName := string(buffer)
+        fmt.Printf("🚀️ Connection Succeeded     -----------| > %s %s Open %s%s%s", Port, Red, Reset, Cyan, ServiceName)
+        OutFile += fmt.Sprintf("Connection Succeeded     -----------| > %s",Port)+" Open "+ ServiceName +"\n"
+        Connect.Close()
+        IntNum = 1
+    }
 }
 func ScanRangePort(Domain string,Start string , End string){
     var WaitGroup sync.WaitGroup
@@ -176,7 +186,6 @@ func ScanRangePort(Domain string,Start string , End string){
     WaitGroup.Wait() 
     fmt.Println()
 }
-
 func ResaltScan(Conut Config){
     var Value = ""
     TTL,IP := PingHost(Conut.Domain)
