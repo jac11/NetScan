@@ -158,6 +158,7 @@ func ScanSinglPort(Domain string, Port string){
     }
 }
 func ScanRangePort(Domain string,Start string , End string){
+    IntNum = 1
     var WaitGroup sync.WaitGroup
     var mutex sync.Mutex
     StartInt,_ := strconv.Atoi(Start)
@@ -186,20 +187,20 @@ func ScanRangePort(Domain string,Start string , End string){
                             fmt.Printf("🚀️ Connection Succeeded     -----------| > %-4d %s Open %s %s %s\n", Port, Red, Reset, Cyan, Service)
                             OutFile += fmt.Sprintf("Connection Succeeded     -----------| > %s",Port)+" Open "+Service+"\n"
                             Connect.Close()
-                            IntNum = 1
                             fmt.Print("\033[G\033[K")
                         }
-                    }        
+                    }         
                 }else{
                     ServiceName := string(buffer)
                     fmt.Printf("🚀️ Connection Succeeded     -----------| > %-4d %s Open %s %s %s", Port, Red, Reset, Cyan, ServiceName)
                     OutFile += fmt.Sprintf("Connection Succeeded     -----------| > %s",Port)+" Open "+ ServiceName +"\n"
                     Connect.Close()
-                    IntNum = 1
                     if strings.Contains(ServiceName,"Windows") || strings.Contains(ServiceName,"Microsoft"){
                         OSGuess  = "128"
                         fmt.Print("\033[G\033[K")
+
                     }
+
                 }
             }    
         }(Port)
@@ -236,7 +237,11 @@ func ResaltScan(Conut Config){
     fmt.Println("🧭 EndTime           -----------| > ",TimeEnd.Format("15:04:05"))
     fmt.Println("⏳ Scan Time         -----------| > ", AllTime )
     fmt.Println("🎯 Port Conut        -----------| > ", CountPort1 - CountPort2+1 )
-    fmt.Println("🪲️ Ports Live        -----------| > ", IntNum)
+    if IntNum ==1{
+        fmt.Println("🪲️ Ports Live        -----------| > ", IntNum)
+    }else if IntNum >= 2{
+        fmt.Println("🪲️ Ports Live        -----------| > ", IntNum -1 )
+    }
     if IntNum ==1 {
         fmt.Println("🐞 Close Ports       -----------| > ", IntNum-1 )
     }else if IntNum == 0 {
