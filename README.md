@@ -52,6 +52,3 @@ Example usage:
 
 If you find any issues or have suggestions for improvements, please feel free to open an issue or submit a pull request on the [GitHub repository](https://github.com/jac11/NetScan).
 
-### License
-
-This project is licensed under the [MIT License](LICENSE).
