@@ -3277,3 +3277,20 @@ var TTLOS = map[int]string{
 		254: "Cisco",
 		255: "AIX/BSDI/HP-UX/Irix/Linux/NetBSD/OpenBSD/OpenVMS/Solaris/Stratus",
 	}
+var  linuxDistributions = []string{
+        "Ubuntu",
+        "Debian",
+        "Fedora",
+        "CentOS",
+        "Arch Linux",
+        "Manjaro",
+        "openSUSE",
+        "Linux Mint",
+        "Gentoo",
+        "Slackware",
+        "Kali Linux",
+        "Red Hat Enterprise Linux",
+        "Zorin OS",
+        "Elementary OS",
+        "Pop!_OS",
+    }
