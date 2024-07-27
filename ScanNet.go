@@ -25,6 +25,7 @@ var OutFile =""
 var IntNum  = 0
 var OSGuess = ""
 var current_time = time.Now().Local()
+var distroLinux = ""
 
 var Banner string = `
 ███████  ██████  █████  ███    ██ ███    ██ ███████ ████████ 
@@ -197,8 +198,17 @@ func ScanRangePort(Domain string,Start string , End string){
                     Connect.Close()
                     if strings.Contains(ServiceName,"Windows") || strings.Contains(ServiceName,"Microsoft"){
                         OSGuess  = "128"
-                        fmt.Print("\033[G\033[K")
 
+                        fmt.Print("\033[G\033[K")
+                    }else{
+                        for _, distro := range linuxDistributions{
+                            if strings.Contains(ServiceName,distro){
+                                OSGuess  = "65"
+                                distroLinux = distro
+                                fmt.Print("\033[G\033[K")
+                                break
+                            }
+                        }
                     }
 
                 }
@@ -220,7 +230,8 @@ func ResaltScan(Conut Config){
         }else if OSGuess == "128" {
             Value = "128"
             Value = "Windows NT/2000/XP/Vista/7/10"
-            
+        }else if OSGuess == "65"{
+            Value = "Linux "+distroLinux
         }else{
          TTLMessage = "UnKwon OS-Guess Linux"
          Value = TTLMessage
