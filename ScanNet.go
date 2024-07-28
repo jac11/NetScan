@@ -185,7 +185,7 @@ func ScanRangePort(Domain string,Start string , End string){
                 if ServicePort== 0 {
                     for PortService , Service  := range (myMap){
                         if strconv.Itoa(Port) == PortService {
-                            fmt.Printf("🚀️ Connection Succeeded     -----------| > %-4d %s Open %s %s %s\n", Port, Red, Reset, Cyan, Service)
+                            fmt.Printf("🚀️ Connection Succeeded     -----------| > %-4d %s Open %s %s %s%s\n",Port, Red, Reset, Cyan, Service,Reset)
                             OutFile += fmt.Sprintf("Connection Succeeded     -----------| > %s",Port)+" Open "+Service+"\n"
                             Connect.Close()
                             fmt.Print("\033[G\033[K")
@@ -193,7 +193,7 @@ func ScanRangePort(Domain string,Start string , End string){
                     }         
                 }else{
                     ServiceName := string(buffer)
-                    fmt.Printf("🚀️ Connection Succeeded     -----------| > %-4d %s Open %s %s %s", Port, Red, Reset, Cyan, ServiceName)
+                    fmt.Printf("🚀️ Connection Succeeded     -----------| > %-4d %s Open %s %s %s%s",Port, Red, Reset, Cyan, ServiceName,Reset)
                     OutFile += fmt.Sprintf("Connection Succeeded     -----------| > %s",Port)+" Open "+ ServiceName +"\n"
                     Connect.Close()
                     if strings.Contains(ServiceName,"Windows") || strings.Contains(ServiceName,"Microsoft"){
