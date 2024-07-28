@@ -159,7 +159,7 @@ func ScanSinglPort(Domain string, Port string){
     }
 }
 func ScanRangePort(Domain string,Start string , End string){
-    IntNum = 1
+    IntNum ++
     var WaitGroup sync.WaitGroup
     var mutex sync.Mutex
     StartInt,_ := strconv.Atoi(Start)
@@ -258,7 +258,7 @@ func ResaltScan(Conut Config){
     }else if IntNum == 0 {
         fmt.Println("🐞 Close Ports       -----------| > ", IntNum+1)
     }else{
-        fmt.Println("🐞 Close Ports       -----------| > ", CountPort1 - IntNum )
+        fmt.Println("🐞 Close Ports       -----------| > ", CountPort1 - IntNum+1 )
     }
     if Conut.WriteFile !=""{
         OutFile += fmt.Sprintf("%s",strings.Repeat("_", 40))+"\n\n"
@@ -273,7 +273,7 @@ func ResaltScan(Conut Config){
         }else if IntNum == 0{
             OutFile += fmt.Sprintf("Close Ports       -----------| > %d", IntNum+1 )+"\n"
         }else{
-           OutFile += fmt.Sprintf("Close Ports       -----------| > %d", CountPort1 - IntNum )+"\n" 
+           OutFile += fmt.Sprintf("Close Ports       -----------| > %d", CountPort1 - IntNum+1 )+"\n" 
         }
         
     }
